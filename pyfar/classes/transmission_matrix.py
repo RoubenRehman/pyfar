@@ -826,6 +826,58 @@ class TransmissionMatrix(FrequencyData):
             A, B, C, D, kl.frequencies)
 
     @staticmethod
+    def _calculate_horn_geometry_parameters(S0: Number,
+            S1: Number,
+            L: Number) -> tuple[Number, Number, Number]:
+        """Calculate the geometry parameters of a conical horn.
+        
+        parameters
+        ----------
+        S0 : float
+            Cross-sectional area at the narrow end of the horn.
+        S1 : float
+            Cross-sectional area at the wide end of the horn.
+        L : float
+            Length of the horn.
+            
+        Returns
+        -------
+        tuple[float, float, float]
+            A tuple containing the area constant Omega, the distance a from the
+            narrow end to the virtual apex of the cone, and the distance b from
+            the wide end to the same virtual apex.
+        """
+        if not isinstance(S0, Number) or isinstance(S0, complex) or S0 <= 0:
+            raise ValueError("The input S0 must be a positive number.")
+        if not isinstance(S1, Number) or isinstance(S1, complex) or S1 <= 0:
+            raise ValueError("The input S1 must be a positive number.")
+        if not isinstance(L, Number) or isinstance(L, complex) or L <= 0:
+            raise ValueError("The input L must be a positive number.")
+        if S0 > S1:
+            raise ValueError("S0 must be strictly smaller than S1.")
+        if S0 == S1:
+            raise ValueError("For a conical horn S0 must be strictly smaller than S1. If S0 == S1, use :fun:`create_transmission_line` instead.")
+
+        r0 = np.sqrt(S0 / np.pi)
+        r1 = np.sqrt(S1 / np.pi)
+        
+        d0 = 2*r0
+        d1 = 2*r1
+
+        a = r0 * (d1 - d0) / (2 * L)
+        b = a + L
+        
+        Omega0 = S0 / a**2
+        Omega1 = S1 / b**2
+        
+        if not np.isclose(Omega0, Omega1, atol=1e-15):
+            raise ValueError("S0/a² is not equal to S1/b². This should never happen.")
+        
+        Omega = Omega0  # or Omega1, they are equal
+
+        return Omega, a, b
+
+    @staticmethod
     def create_conical_horn(a: Number,
             b: Number,
             Omega: Number,

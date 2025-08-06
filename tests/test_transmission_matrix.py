@@ -357,6 +357,43 @@ def test_create_conical_horn_number():
         tmat_forwards,
         inv_prefix * D, -1 * inv_prefix * B, -1 * inv_prefix * C, inv_prefix * A)
 
+@pytest.mark.parametrize("S0", [{"a": 1, "b": 2}, np.array([1, 2, 3]), "term", 0, -5, 2j])
+def test_calculate_horn_geometry_parameters_S0_value_error(S0):
+    S1 = 0.2
+    L = 0.35
+    
+    with pytest.raises(
+        ValueError, match="The input S0"):
+        TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)
+
+@pytest.mark.parametrize("S1", [{"a": 1, "b": 2}, np.array([1, 2, 3]), "term", 0, -5, 2j])
+def test_calculate_horn_geometry_parameters_S1_value_error(S1):
+    S0 = 0.2
+    L = 0.35
+    
+    with pytest.raises(
+        ValueError, match="The input S1"):
+        TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)
+
+@pytest.mark.parametrize("L", [{"a": 1, "b": 2}, np.array([1, 2, 3]), "term", 0, -5, 2j])
+def test_calculate_horn_geometry_parameters_L_value_error(L):
+    S0 = 0.2
+    S1 = 0.3
+
+    with pytest.raises(
+        ValueError, match="The input L"):
+        TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)
+        
+def test_calculate_horn_geometry_parameters_S0_larger_S1_value_error():
+    S0 = 0.35
+    S1 = 0.3
+    L = 0.35
+
+    with pytest.raises(
+        ValueError, match="S0 must be strictly smaller than S1."):
+        TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)
+
+
 def test_create_conical_horn_frequency_data():
     """Test `create_transmission_line` with impedance as FrequencyData."""
     k = FrequencyData([1j, 2, 3j], [1, 2, 3])
