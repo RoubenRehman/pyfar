@@ -402,6 +402,21 @@ def test_calculate_horn_geometry_parameters_S0_equal_S1_value_error():
         ValueError, match="For a conical horn S0 must be"):
         TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)
 
+def test_calculate_horn_geometry_parameters():
+    a = 0.3
+    b = 0.7
+    Omega = 1.4
+    
+    S0 = Omega * a**2
+    S1 = Omega * b**2
+    L = b - a
+    
+    Omega_ret, a_ret, b_ret = TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)
+    
+    assert np.isclose(Omega, Omega_ret, atol=1e-15) 
+    assert np.isclose(a, a_ret, atol=1e-15)
+    assert np.isclose(b, b_ret, atol=1e-15)
+
 def test_create_conical_horn_frequency_data():
     """Test `create_transmission_line` with impedance as FrequencyData."""
     k = FrequencyData([1j, 2, 3j], [1, 2, 3])

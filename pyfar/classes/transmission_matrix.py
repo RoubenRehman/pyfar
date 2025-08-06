@@ -864,14 +864,14 @@ class TransmissionMatrix(FrequencyData):
         d0 = 2*r0
         d1 = 2*r1
 
-        a = r0 * (d1 - d0) / (2 * L)
+        a = r0 * (2 * L) / (d1 - d0)
         b = a + L
         
         Omega0 = S0 / a**2
         Omega1 = S1 / b**2
         
         if not np.isclose(Omega0, Omega1, atol=1e-15):
-            raise ValueError("S0/a² is not equal to S1/b². This should never happen.")
+            raise ValueError(f'S0/a² is not equal to S1/b²: {Omega0} != {Omega1}. This should never happen.')
         
         Omega = Omega0  # or Omega1, they are equal
 
