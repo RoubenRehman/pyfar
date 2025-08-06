@@ -393,6 +393,14 @@ def test_calculate_horn_geometry_parameters_S0_larger_S1_value_error():
         ValueError, match="S0 must be strictly smaller than S1."):
         TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)
 
+def test_calculate_horn_geometry_parameters_S0_equal_S1_value_error():
+    S0 = 0.35
+    S1 = 0.35
+    L = 0.2
+    
+    with pytest.raises(
+        ValueError, match="For a conical horn S0 must be"):
+        TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)
 
 def test_create_conical_horn_frequency_data():
     """Test `create_transmission_line` with impedance as FrequencyData."""
