@@ -829,7 +829,7 @@ class TransmissionMatrix(FrequencyData):
     def create_conical_horn(a: Number,
             b: Number,
             Omega: Number,
-            k: FrequencyData,
+            k: Number | FrequencyData,
             medium_impedance: Number | FrequencyData,
             ) -> TransmissionMatrix:
         r"""Create a transmission matrix representing a conical horn.
@@ -856,7 +856,7 @@ class TransmissionMatrix(FrequencyData):
         Omega : float
             Area constant, such that the horn's cross-sectional area at any length
             :math:`a\leq l \leq b` is given by :math:`S(l) = \Omega l^2`.
-        k : np.ndarray
+        k : float | FrequencyData
             Wave number.
         medium_impedance : float | FrequencyData
             The impedance of the medium filling the horn.
