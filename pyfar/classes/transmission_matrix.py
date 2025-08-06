@@ -878,11 +878,13 @@ class TransmissionMatrix(FrequencyData):
         return Omega, a, b
 
     @staticmethod
-    def create_conical_horn(a: Number,
-            b: Number,
-            Omega: Number,
+    def create_conical_horn(
+            S0: Number,
+            S1: Number,
+            L: Number,
             k: Number | FrequencyData,
             medium_impedance: Number | FrequencyData,
+            propagation_direction: str = 'forward'
             ) -> TransmissionMatrix:
         r"""Create a transmission matrix representing a conical horn.
 
@@ -898,16 +900,12 @@ class TransmissionMatrix(FrequencyData):
 
         Parameters
         ----------
-        a : float
-            Distance from the horn's narrow end to the virtual apex of the underlying cone.
-            This is not the physical length of the horn but the extrapolated length to the point
-            where the conical walls would converge.
-        b : float
-            Distance from the horn's wide end to the same virtual apex of the cone.
-            The difference (b - a) gives the actual physical length of the horn segment.
-        Omega : float
-            Area constant, such that the horn's cross-sectional area at any length
-            :math:`a\leq l \leq b` is given by :math:`S(l) = \Omega l^2`.
+        S0 : float
+            The surface area of the horn's narrow end.
+        S1 : float
+            The surface area of the horn's wide end.
+        L : float
+            The distance between the narrow and wide end of the horn, i.e. the horn's length.
         k : float | FrequencyData
             Wave number.
         medium_impedance : float | FrequencyData
@@ -927,15 +925,15 @@ class TransmissionMatrix(FrequencyData):
             >>> import pyfar as pf
             >>> import numpy as np
             >>> # Horn parameters
-            >>> a = 0.1
-            >>> b = 1.7
-            >>> Omega = 2.4
+            >>> S0 = 0.003
+            >>> S1 = 0.005
+            >>> L = 0.3
             >>> frequencies = np.linspace(20, 20e3, 1000)
             >>> omega = 2 * np.pi * frequencies
             >>> k = pf.FrequencyData(omega / pf.constants.reference_speed_of_sound, frequencies)
             >>> Z0 = pf.constants.reference_air_impedance
             >>> # Create the transmission matrix
-            >>> T = pf.TransmissionMatrix.create_conical_horn(a, b, Omega, k, Z0)
+            >>> T = pf.TransmissionMatrix.create_conical_horn(S0, S1, L, k, Z0)
             >>> # Plot the transmission matrix
             >>> pf.plot.freq(T.input_impedance(np.inf))
             
@@ -954,18 +952,6 @@ class TransmissionMatrix(FrequencyData):
         i.e. model wave propagation from the narrow towards the wide end,
         then the position of `a` and `b` in the function signature must be swapped.
         """
-        if not isinstance(a, Number):
-            raise TypeError("The input a must be a number.")
-        elif isinstance(a, complex) or a <= 0:
-            raise ValueError("The input a must be real and strictly greater than 0.")
-        if not isinstance(b, Number):
-            raise TypeError("The input b must be a number.")
-        elif isinstance(b, complex) or b <= 0:
-            raise ValueError("The input b must be real and strictly greater than 0.")
-        if not isinstance(Omega, Number):
-            raise TypeError("The input Omega must be a number.")
-        elif isinstance(Omega, complex) or Omega <= 0:
-            raise ValueError("The input Omega must be real and strictly greater than 0.")
         if not isinstance(k, FrequencyData):
             raise TypeError("The wave number k must be a FrequencyData object.")
         else:
@@ -978,8 +964,18 @@ class TransmissionMatrix(FrequencyData):
                 medium_impedance = medium_impedance.freq
         elif not isinstance(medium_impedance, Number):
             raise TypeError("The input medium_impedance must be a number or a FrequencyData object.")
+        if not isinstance(propagation_direction, str):
+            raise TypeError("The input propagation_direction must be a string with value 'forwards' or 'backwards'.")
+        if propagation_direction not in ('forwards', 'backwards'):
+            raise ValueError("The string propagation_direction must either be 'forwards' or 'backwards'.")
 
-        L = b - a
+        if propagation_direction == 'backwards':
+            Omega, a, b = TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)     # Error handling inside the helper function
+        else:
+            Omega, b, a = TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)     # Error handling inside the helper function
+            L = -1 * L
+
+        print(f'a = {a}, b = {b}, Omega = {Omega}')
 
         A = b/a * np.cos(k*L) - 1/(k*a) * np.sin(k*L)
         B = 1j * medium_impedance / (a*b*Omega) * np.sin(k*L)
