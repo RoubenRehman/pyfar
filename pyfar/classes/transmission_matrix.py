@@ -32,6 +32,7 @@ from __future__ import annotations # required for Python <= 3.9
 import numpy as np
 import numpy.testing as npt
 from pyfar.classes.audio import FrequencyData
+from pyfar.constants import reference_air_impedance
 from numbers import Number
 
 
@@ -883,8 +884,8 @@ class TransmissionMatrix(FrequencyData):
             S1: Number,
             L: Number,
             k: Number | FrequencyData,
-            medium_impedance: Number | FrequencyData,
-            propagation_direction: str = 'forward'
+            medium_impedance: Number | FrequencyData = reference_air_impedance,
+            propagation_direction: str = 'forwards'
             ) -> TransmissionMatrix:
         r"""Create a transmission matrix representing a conical horn.
 
@@ -909,7 +910,10 @@ class TransmissionMatrix(FrequencyData):
         k : float | FrequencyData
             Wave number.
         medium_impedance : float | FrequencyData
-            The impedance of the medium filling the horn.
+            The impedance of the medium filling the horn. Defautl is ``pyfar.constants.reference_air_impedance``
+        propagation_direction: str = {'forwards', 'backwards'}
+            Defines the direction of sound propagation through the horn, where ``'forwards'`` means from narrow to wide end
+            and ``'backwards'`` means from wide to narrow end. Default is ``'forwards'``.
 
         Returns
         -------
@@ -933,24 +937,10 @@ class TransmissionMatrix(FrequencyData):
             >>> k = pf.FrequencyData(omega / pf.constants.reference_speed_of_sound, frequencies)
             >>> Z0 = pf.constants.reference_air_impedance
             >>> # Create the transmission matrix
-            >>> T = pf.TransmissionMatrix.create_conical_horn(S0, S1, L, k, Z0)
+            >>> T = pf.TransmissionMatrix.create_conical_horn(S0, S1, L, k, Z0, 'backwards')
             >>> # Plot the transmission matrix
             >>> pf.plot.freq(T.input_impedance(np.inf))
-            
-        Note
-        ----
-        By default, the calculated transmission matrix relates the sound pressure and volume velocity at the horn's narrow end (a)
-        to the sound pressure and volume velocity at the horn's wide end (b):
         
-        .. math::
-            \begin{bmatrix} p_a \\ q_a \end{bmatrix} = \begin{bmatrix}
-                \frac{b}{a}cos(kl)-\frac{1}{ka}sin(kl) & \frac{jZ_0}{ab\Omega} \sin{kl} \\
-                \frac{j\Omega}{k^2Z_0}\left( (1 + k^2ab) \sin{kl} - kl \cos{kl} \right) & \frac{a}{b}cos(kl)-\frac{1}{kb}sin(kl)
-                \end{bmatrix}\begin{bmatrix} p_b \\ q_b \end{bmatrix}
-
-        If one instead wants to express :math:`p_b` and :math:`q_b` in terms of :math:`p_a` and :math:`q_a`,
-        i.e. model wave propagation from the narrow towards the wide end,
-        then the position of `a` and `b` in the function signature must be swapped.
         """
         if not isinstance(k, FrequencyData):
             raise TypeError("The wave number k must be a FrequencyData object.")
