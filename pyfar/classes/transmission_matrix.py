@@ -972,7 +972,6 @@ class TransmissionMatrix(FrequencyData):
 
         return TransmissionMatrix.from_abcd(A, B, C, D, frequencies)
 
-
     def __repr__(self):
         """String representation of TransmissionMatrix class."""
         repr_string = (
