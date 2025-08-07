@@ -140,16 +140,17 @@ class TransmissionMatrix(FrequencyData):
 
         Parameters
         ----------
-        A : FrequencyData, array_like, double
+        A : FrequencyData | array_like | Number
             Raw data for the matrix entries A. The data need to match the
-            B, C and D entry or be broadcastable into one ``shape``.
-        B : FrequencyData, array_like, double
+            B, C and D entry or be broadcastable into one ``shape``. Can be 
+            a FrequencyData object, an array_like, or a real or complex number.
+        B : FrequencyData | array_like | Number
             See A.
-        C : FrequencyData, array_like, double
+        C : FrequencyData | array_like | Number
             See A.
-        D : FrequencyData, array_like, double
+        D : FrequencyData | array_like | Number
             See A.
-        frequencies : array, double, None
+        frequencies : array_like | Number | None
             Frequencies of the data in Hz. This is optional if using the
             FrequencyData type for A, B, C, D.
 
