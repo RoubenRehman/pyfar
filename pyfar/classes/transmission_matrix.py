@@ -32,7 +32,7 @@ from __future__ import annotations # required for Python <= 3.9
 import numpy as np
 import numpy.testing as npt
 from pyfar.classes.audio import FrequencyData
-from pyfar.constants import reference_air_impedance
+from pyfar.constants import reference_air_impedance, reference_speed_of_sound
 from numbers import Number
 
 
@@ -907,7 +907,7 @@ class TransmissionMatrix(FrequencyData):
             The surface area of the horn's wide end.
         L : float
             The distance between the narrow and wide end of the horn, i.e. the horn's length.
-        k : float | FrequencyData
+        k : float | complex | FrequencyData
             Wave number.
         medium_impedance : float | FrequencyData
             The impedance of the medium filling the horn. Defautl is ``pyfar.constants.reference_air_impedance``
@@ -942,11 +942,17 @@ class TransmissionMatrix(FrequencyData):
             >>> pf.plot.freq(T.input_impedance(np.inf))
         
         """
-        if not isinstance(k, FrequencyData):
-            raise TypeError("The wave number k must be a FrequencyData object.")
-        else:
+        if not ( isinstance(k, FrequencyData) or isinstance(k, Number) ):
+            raise TypeError("The wave number k must be a float, complex, or FrequencyData object.")
+        elif isinstance(k, FrequencyData):
             frequencies = k.frequencies
             k = k.freq
+        else:
+            if isinstance(k, complex):
+                k_re = k.real
+            else:
+                k_re = k
+            frequencies = (k_re * reference_speed_of_sound) / (2 * np.pi)
         if isinstance(medium_impedance, FrequencyData):
             if not np.allclose(medium_impedance.frequencies, frequencies, atol=1e-15):
                 raise ValueError("The frequencies of characteristic_impedance must match those of k.")
