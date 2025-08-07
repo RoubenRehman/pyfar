@@ -22,15 +22,15 @@ def A_np(A_list):
     return np.array(A_list)
 @pytest.fixture(scope="module")
 def A_FreqDat(A_np, frequencies):
-    """Test data for a matrix-entry (e.g. A) using a FrequencyData object."""
+    """Test data for a matrix-entry (e.g. A) using an np array."""
     return FrequencyData(A_np, frequencies)
 @pytest.fixture(scope="module")
 def A_number():
-    """Test data for a matrix-entry (e.g. A) using a FrequencyData object."""
+    """Test data for a matrix-entry (e.g. A) using a float."""
     return 100.7
 @pytest.fixture(scope="module")
 def A_complex():
-    """Test data for a matrix-entry (e.g. A) using a FrequencyData object."""
+    """Test data for a matrix-entry (e.g. A) using a complex."""
     return 3.25 + 2.33j
 
 
