@@ -107,13 +107,13 @@ def test_tmatrix_from_abcd_creation_from_list(A_list, frequencies):
     
     _compare_tmat_vs_abcd(t, A_list, A_list, A_list, A_list)
     
-def test_tmatrix_from_abcd_creation_from_number(A_number, frequencies):
-    t = TransmissionMatrix.from_abcd(A_number, A_number, A_number, A_number, frequencies)
+def test_tmatrix_from_abcd_creation_from_number(A_number, frequencies_number):
+    t = TransmissionMatrix.from_abcd(A_number, A_number, A_number, A_number, frequencies_number)
     
-    _compare_tmat_vs_abcd(t, A_FreqDat, A_FreqDat, A_FreqDat, A_FreqDat)
+    _compare_tmat_vs_abcd(t, A_number, A_number, A_number, A_number)
     
-def test_tmatrix_from_abcd_creation_from_complex(A_complex, frequencies):
-    t = TransmissionMatrix.from_abcd(A_complex, A_complex, A_complex, A_complex, frequencies)
+def test_tmatrix_from_abcd_creation_from_complex(A_complex, frequencies_number):
+    t = TransmissionMatrix.from_abcd(A_complex, A_complex, A_complex, A_complex, frequencies_number)
     
     _compare_tmat_vs_abcd(t, A_complex, A_complex, A_complex, A_complex)    
 

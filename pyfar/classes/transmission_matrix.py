@@ -28,7 +28,8 @@ consecutive T-matrices simply using the ``@`` operator:
 >>> tmat_out.freq == tmat.freq
 
 """
-from __future__ import annotations # required for Python <= 3.9
+from __future__ import annotations
+from numbers import Number # required for Python <= 3.9
 import numpy as np
 import numpy.testing as npt
 from pyfar.classes.audio import FrequencyData
@@ -191,10 +192,12 @@ class TransmissionMatrix(FrequencyData):
             raise ValueError(
                         "If using FrequencyData objects, all matrix entries "
                         "A, B, C, D, must be FrequencyData objects.")
-
         if frequencies is None:
             raise ValueError("'frequencies' must be specified if not using "
                              "'FrequencyData' objects as input.")
+        
+        A, B, C, D = [np.atleast_1d(np.asarray(param)) if isinstance(param, Number) else param for param in (A, B, C, D)]
+        
         # broadcast shapes
         shape = np.broadcast_shapes(
             np.array(A).shape, np.array(B).shape,
