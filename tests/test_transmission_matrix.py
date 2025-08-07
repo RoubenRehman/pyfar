@@ -5,6 +5,7 @@ import re
 import pyfar as pf
 from pyfar import TransmissionMatrix
 from pyfar import FrequencyData
+from pyfar.constants import reference_air_impedance
 
 @pytest.fixture(scope="module")
 def frequencies():
@@ -389,7 +390,7 @@ def test_calculate_horn_geometry_calculations():
     assert np.isclose(b, b_ret, atol=1e-15)
 
 def test_create_conical_horn_number():
-    """Test `create_transmission_line` with impedance as number."""
+    """Test `create_conical_horn` with impedance as number."""
     k = FrequencyData([1j, 2, 3j], [1, 2, 3])
     Z = 4+0.1j
     
@@ -422,7 +423,7 @@ def test_create_conical_horn_number():
         inv_prefix * D, -1 * inv_prefix * B, -1 * inv_prefix * C, inv_prefix * A)
 
 def test_create_conical_horn_frequency_data():
-    """Test `create_transmission_line` with impedance as FrequencyData."""
+    """Test `create_conical_horn` with impedance as FrequencyData."""
     k = FrequencyData([1j, 2, 3j], [1, 2, 3])
     Z = FrequencyData([1+1j, 2+2j, 3+1j], [1, 2, 3])
     
@@ -455,7 +456,7 @@ def test_create_conical_horn_frequency_data():
         inv_prefix * D, -1 * inv_prefix * B, -1 * inv_prefix * C, inv_prefix * A)
 
 def test_create_conical_horn_broadcasting():
-    """Test `create_transmission_line` broadcasting."""
+    """Test `create_conical_horn` broadcasting."""
     k = FrequencyData(np.array([[1j, 2, 3j],[4j, 5, 6j]]) , [1, 2, 3])
     Z = FrequencyData([1+1j, 2+2j, 3+1j], [1, 2, 3])
     
@@ -513,7 +514,7 @@ def test_create_conical_horn_medium_impedance_errors(Z):
 
 @pytest.mark.parametrize("propagation_direction", [np.array([1, 2, 3]), 2, -5, 8j])
 def test_create_conical_horn_propagation_direction_type_errors(propagation_direction):
-    """Test `create_conical_horn` errors for impedance parameter."""
+    """Test `create_conical_horn` errors for propagation_direction."""
     k = FrequencyData(np.array([[1j, 2, 3j],[4j, 5, 6j]]) , [1, 2, 3])
     Z = FrequencyData([1+1j, 2+2j, 3+1j], [1, 2, 3])
     
@@ -527,7 +528,7 @@ def test_create_conical_horn_propagation_direction_type_errors(propagation_direc
 
 @pytest.mark.parametrize("propagation_direction", ["test", "", "forward"])
 def test_create_conical_horn_propagation_direction_value_errors(propagation_direction):
-    """Test `create_conical_horn` errors for impedance parameter."""
+    """Test `create_conical_horn` errors for propagation_direction."""
     k = FrequencyData(np.array([[1j, 2, 3j],[4j, 5, 6j]]) , [1, 2, 3])
     Z = FrequencyData([1+1j, 2+2j, 3+1j], [1, 2, 3])
     
@@ -539,6 +540,33 @@ def test_create_conical_horn_propagation_direction_value_errors(propagation_dire
         ValueError, match="The string propagation_direction must either"):
         TransmissionMatrix.create_conical_horn(S0, S1, L, k, Z, propagation_direction)
 
+def test_create_conical_horn_default_parameters():
+    """Test `create_conical_horn` default parameters."""
+    k = FrequencyData([1j, 2, 3j], [1, 2, 3])
+    Z = reference_air_impedance
+    
+    a = 0.3
+    b = 0.5
+    Omega = 0.4
+
+    S0 = Omega * a**2
+    S1 = Omega * b**2
+    L = b - a
+    
+    tmat = TransmissionMatrix.create_conical_horn(S0, S1, L, k,)  # using default Z = reference_air_impedance and default propagation_direction = 'forwards'
+
+    A = b/a * np.cos(k.freq*(b-a)) - 1/(k.freq*a) * np.sin(k.freq*(b-a))
+    B = 1j * Z / (a*b*Omega) * np.sin(k.freq*(b-a))
+    C = 1j * Omega / (k.freq*k.freq*Z) * ((1 + k.freq*k.freq*a*b) * np.sin(k.freq*(b-a)) - k.freq*(b-a)*np.cos(k.freq*(b-a)))
+    D = a/b * np.cos(k.freq*(b-a)) + 1/(k.freq*b) * np.sin(k.freq*(b-a))
+
+    inv_prefix = 1 / (A*D - B*C)
+    
+    assert isinstance(tmat, TransmissionMatrix)
+    _compare_tmat_vs_abcd(
+        tmat,
+        inv_prefix * D, -1 * inv_prefix * B, -1 * inv_prefix * C, inv_prefix * A)
+        
 def test_create_conical_horn_frequency_matching():
     """Test `create_conical_horn` frequency matching."""
     k = FrequencyData([1j, 2, 3j], [1, 2, 3])
