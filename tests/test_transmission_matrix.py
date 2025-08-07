@@ -487,6 +487,33 @@ def test_create_conical_horn_broadcasting():
     _compare_tmat_vs_abcd(
         tmat_forwards,
         inv_prefix * D, -1 * inv_prefix * B, -1 * inv_prefix * C, inv_prefix * A)
+    
+def test_create_conical_horn_default_parameters():
+    """Test `create_conical_horn` default parameters."""
+    k = FrequencyData([1j, 2, 3j], [1, 2, 3])
+    Z = reference_air_impedance
+    
+    a = 0.3
+    b = 0.5
+    Omega = 0.4
+
+    S0 = Omega * a**2
+    S1 = Omega * b**2
+    L = b - a
+    
+    tmat = TransmissionMatrix.create_conical_horn(S0, S1, L, k,)  # using default Z = reference_air_impedance and default propagation_direction = 'forwards'
+
+    A = b/a * np.cos(k.freq*(b-a)) - 1/(k.freq*a) * np.sin(k.freq*(b-a))
+    B = 1j * Z / (a*b*Omega) * np.sin(k.freq*(b-a))
+    C = 1j * Omega / (k.freq*k.freq*Z) * ((1 + k.freq*k.freq*a*b) * np.sin(k.freq*(b-a)) - k.freq*(b-a)*np.cos(k.freq*(b-a)))
+    D = a/b * np.cos(k.freq*(b-a)) + 1/(k.freq*b) * np.sin(k.freq*(b-a))
+
+    inv_prefix = 1 / (A*D - B*C)
+    
+    assert isinstance(tmat, TransmissionMatrix)
+    _compare_tmat_vs_abcd(
+        tmat,
+        inv_prefix * D, -1 * inv_prefix * B, -1 * inv_prefix * C, inv_prefix * A)
 
 @pytest.mark.parametrize("k", [2j, np.array([1, 2, 3]), "term"])
 def test_create_conical_horn_k_errors(k):
@@ -539,33 +566,6 @@ def test_create_conical_horn_propagation_direction_value_errors(propagation_dire
     with pytest.raises(
         ValueError, match="The string propagation_direction must either"):
         TransmissionMatrix.create_conical_horn(S0, S1, L, k, Z, propagation_direction)
-
-def test_create_conical_horn_default_parameters():
-    """Test `create_conical_horn` default parameters."""
-    k = FrequencyData([1j, 2, 3j], [1, 2, 3])
-    Z = reference_air_impedance
-    
-    a = 0.3
-    b = 0.5
-    Omega = 0.4
-
-    S0 = Omega * a**2
-    S1 = Omega * b**2
-    L = b - a
-    
-    tmat = TransmissionMatrix.create_conical_horn(S0, S1, L, k,)  # using default Z = reference_air_impedance and default propagation_direction = 'forwards'
-
-    A = b/a * np.cos(k.freq*(b-a)) - 1/(k.freq*a) * np.sin(k.freq*(b-a))
-    B = 1j * Z / (a*b*Omega) * np.sin(k.freq*(b-a))
-    C = 1j * Omega / (k.freq*k.freq*Z) * ((1 + k.freq*k.freq*a*b) * np.sin(k.freq*(b-a)) - k.freq*(b-a)*np.cos(k.freq*(b-a)))
-    D = a/b * np.cos(k.freq*(b-a)) + 1/(k.freq*b) * np.sin(k.freq*(b-a))
-
-    inv_prefix = 1 / (A*D - B*C)
-    
-    assert isinstance(tmat, TransmissionMatrix)
-    _compare_tmat_vs_abcd(
-        tmat,
-        inv_prefix * D, -1 * inv_prefix * B, -1 * inv_prefix * C, inv_prefix * A)
         
 def test_create_conical_horn_frequency_matching():
     """Test `create_conical_horn` frequency matching."""
