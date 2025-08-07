@@ -845,7 +845,7 @@ class TransmissionMatrix(FrequencyData):
             entries of the matrix.
             If all imaginary parts of ``kl.freq`` are zero, the transmission
             matrix represents a lossless transmission line.
-        characteristic_impedance : Number | FrequencyData
+        characteristic_impedance : FrequencyData, scalar
             The characteristic impedance of the transmission line.
 
         Returns
@@ -996,9 +996,9 @@ class TransmissionMatrix(FrequencyData):
         L : float
             The distance between the narrow and wide end of the horn,
             i.e. the horn's length.
-        k : float | complex | FrequencyData
+        k : FrequencyData, scalar
             Wave number.
-        medium_impedance : float | FrequencyData
+        medium_impedance : FrequencyData, scalar
             The impedance of the medium filling the horn. Defautl is
             ``pyfar.constants.reference_air_impedance``
         propagation_direction: str = {'forwards', 'backwards'}
