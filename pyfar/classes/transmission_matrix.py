@@ -965,8 +965,6 @@ class TransmissionMatrix(FrequencyData):
             Omega, b, a = TransmissionMatrix._calculate_horn_geometry_parameters(S0, S1, L)     # Error handling inside the helper function
             L = -1 * L
 
-        print(f'a = {a}, b = {b}, Omega = {Omega}')
-
         A = b/a * np.cos(k*L) - 1/(k*a) * np.sin(k*L)
         B = 1j * medium_impedance / (a*b*Omega) * np.sin(k*L)
         C = 1j * Omega / (k*k*medium_impedance) * ((1 + k*k*a*b) * np.sin(k*L) - k*L*np.cos(k*L))
