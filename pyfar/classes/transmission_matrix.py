@@ -196,6 +196,7 @@ class TransmissionMatrix(FrequencyData):
             raise ValueError("'frequencies' must be specified if not using "
                              "'FrequencyData' objects as input.")
         
+        # Convert all parameters of type Number to 1d np arrays for further computation
         A, B, C, D = [np.atleast_1d(np.asarray(param)) if isinstance(param, Number) else param for param in (A, B, C, D)]
         
         # broadcast shapes
