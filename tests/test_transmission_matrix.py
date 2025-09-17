@@ -628,7 +628,6 @@ def test_create_conical_horn_k_number():
     D = a / b * np.cos(k.freq * (b - a)) + 1 / (k.freq * b) * np.sin(
         k.freq * (b - a),
     )
-
     inv_prefix = 1 / (A * D - B * C)
 
     assert isinstance(tmat_backwards, TransmissionMatrix)
